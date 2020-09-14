@@ -16,7 +16,7 @@ void ipBlockUnblock(char voiceChoice){
 	int v = 0;
         char command[] = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
 	char IP[20];
-	char tail[] = "' accept\"";
+	char tail[] = "' reject\"";
 	int status;
 
 	// Asking for the IP to block
@@ -35,8 +35,8 @@ void ipBlockUnblock(char voiceChoice){
 	// throwing an error if IP blocking was failed
 	if(status != 0 ){
 		if(v) system("espeak-ng \"There is some error during the process\"");
-		printf("Blocking IP not successful");
-		exit(EXIT_FAILURE);
+		printf("Blocking IP not successful\n");
+		exit(EXIT_SUCCESS);
 	}
 
 	// reload the firewall rules to complete the process
@@ -46,7 +46,7 @@ void ipBlockUnblock(char voiceChoice){
 
 	if(v) system("espeak-ng \"Ip blocked successfully\"");
 	colorGreen();
-	printf("IP blocked successfully.");
+	printf("IP blocked successfully.\n");
 	colorReset();
 }
 
@@ -92,7 +92,7 @@ void convertToLog(char voiceChoice){
         system("sudo ./script.sh");
         
 	colorGreen();
-	printf("\nCSV file created at /root/minor/%s\n", logName);
+	printf("\nCSV file created at %s\n", logName);
 	colorReset();
 
         if(v) system("espeak-ng \"C S V file create\"");
@@ -103,7 +103,7 @@ void convertToLog(char voiceChoice){
 
 void searchForKeyword(char voiceChoice){   
 
-        // Variable declaration
+        // Variable declarationa
 	int v = 0;
 	FILE *fp;
         char line[150];
@@ -177,35 +177,40 @@ int main(){
 	printf("1. To covert log file into CSV file.\n");
         printf("2. To search for a occurence of a word in log file.\n");
 	printf("3. Block / Unblock a particular IP using firewall.\n");
+	printf("0. Exit program\n");
 
 	// take input for choice from above provided options
-        printf("\nEnter your choice: ");
-        scanf("%d", &choice);
+	while(1){
+          printf("\nEnter your choice: ");
+          scanf("%d", &choice);
 
         // call functions for the respective tasks
-	switch(choice){
-	  case 1:
-            convertToLog(voiceChoice);
-	    break;
+	  switch(choice){
+	    case 0:
+	      if(voiceChoice == 'y'){
+		  system("espeak-ng \"Thank you\"");
+	      }
+	      exit(EXIT_SUCCESS);
 
-          case 2:
-            searchForKeyword(voiceChoice);
-            break;
+	    case 1:
+              convertToLog(voiceChoice);
+	      break;
 
-	  case 3:
-	    ipBlockUnblock(voiceChoice);
-	    break;
+            case 2:
+              searchForKeyword(voiceChoice);
+              break;
 
-          default:
-	    if(voiceChoice == 'y'){ system("espeak-ng \"Not a valid option\""); }
-            printf("Select a valid option");
-            break;    
+	    case 3:
+	      ipBlockUnblock(voiceChoice);
+	      break;
+
+            default:
+	      if(voiceChoice == 'y'){ system("espeak-ng \"Not a valid option\""); }
+              printf("Select a valid option");
+              break;    
+	  }
 	}
         
-	// speak thank you if voice assistance was provided
-	if(voiceChoice == 'y'){
-		system("espeak-ng \"Thank you\"");
-	}
 
 	return 0;
 }
