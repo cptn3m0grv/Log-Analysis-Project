@@ -1,0 +1,11 @@
+[2020-09-17]
+---> TO DO TASKS ( AS OF NOW):
+	---> fix ip block unblock in main code
+	---> add text while firewall loads in practice_code_snippets/ipBlockUnblock.c
+	---> keep storing the blocked ips into a file
+ 	---> Delete the Ip from the file if unblocked
+	---> alignment fix in code
+	---> add more colours
+	---> add visualization
+	---> add the feature to search log in a particular time frame
+	---> add the feature to store the output of searchKeyword function in a file
