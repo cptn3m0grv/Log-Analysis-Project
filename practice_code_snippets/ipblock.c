@@ -2,10 +2,13 @@
 #include<string.h>
 
 int main(){
-	printf("Enter the IP to block: ");
+	printf("Enter the number of IP to block: ");
+	scanf("%d", &ipListSize);
+	
 	char first_half[] = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
 
-	char second_half[20];
+
+	
 	scanf("%20s", second_half);
 	char final_half[] = "' accept\"";
 	
