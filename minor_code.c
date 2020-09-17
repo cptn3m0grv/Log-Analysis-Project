@@ -44,6 +44,7 @@ void banner(){
 void ipBlockUnblock(char voiceChoice){
 
     int status;
+	int whileLoopVariable = 1;
 
     char commandBlock[] = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
 	char commandUnblock[] = "firewall-cmd --permanent --remove-rich-rule=\"rule family='ipv4' source address='";
@@ -55,13 +56,13 @@ void ipBlockUnblock(char voiceChoice){
         system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
     }
 
-    printf("1. Block a particular IP\n");
-    printf("2. Unblock a previously blocked IP\n");
-    printf("3. Exit\n");
+    printf("	1. Block a particular IP\n");
+    printf("	2. Unblock a previously blocked IP\n");
+    printf("	3. Exit\n");
 
 
-	while(1){
-		printf("Enter you choice: ");
+	while(whileLoopVariable){
+		printf("	 Enter you choice: ");
 		scanf("%d", &ipChoice);
 
 		switch (ipChoice){
@@ -69,8 +70,7 @@ void ipBlockUnblock(char voiceChoice){
 			if(voiceChoice == 'y'){
             	system("espeak-ng -p 81 -a 55 -s 140 \"Thank you\"");
             }
-            printf("Thank you !!!");
-            exit(EXIT_SUCCESS);
+            whileLoopVariable = 0;
 			break;
 
 		case 1:
@@ -78,7 +78,7 @@ void ipBlockUnblock(char voiceChoice){
 				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");
 			}
 			// Asking for IP
-			printf("Enter the IP to block: ");
+			printf("	 Enter the IP to block: ");
 			scanf("%s", IP);
 
 			strcat(commandBlock, IP);
@@ -110,7 +110,7 @@ void ipBlockUnblock(char voiceChoice){
 			if(voiceChoice == 'y'){
 				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to UnBlock\"");
 			}
-			printf("Enter the IP to Unblock: ");
+			printf("	 Enter the IP to Unblock: ");
 			scanf("%s", IP);
 
 			strcat(commandUnblock, IP);
@@ -284,7 +284,7 @@ void searchForKeyword(char voiceChoice){
 int main(){
 	
 	// Variable Declaration
-
+	int whileLoopVariable = 1;
 	char voiceChoice;
 	int choice;
 
@@ -302,17 +302,18 @@ int main(){
 		printf("Invalid Input!!!");
 	}
 	
-	// Display multiple options
-	printf("\n\n\n");
-	printf("1. To covert log file into CSV file.\n");
-    printf("2. To search for a occurence of a word in log file.\n");
-	printf("3. Block / Unblock a particular IP using firewall.\n");
-	printf("0. Exit program\n");
 
 	// take input for choice from above provided options
-	while(1){
-      printf("\nEnter your choice: ");
-      scanf("%d", &choice);
+	while(whileLoopVariable){
+		// Display multiple options
+		printf("\n\n\n");
+		printf("1. To covert log file into CSV file.\n");
+		printf("2. To search for a occurence of a word in log file.\n");
+		printf("3. Block / Unblock a particular IP using firewall.\n");
+		printf("0. Exit program\n");	
+
+		printf("\nEnter your choice: ");
+		scanf("%d", &choice);
 
         // call functions for the respective tasks
 	  switch(choice){
@@ -320,8 +321,8 @@ int main(){
 	      if(voiceChoice == 'y'){
 		  system("espeak-ng -p 81 -a 55 -s 140 \"Thank you\"");
 	      }
-	      exit(EXIT_SUCCESS);
-
+		  whileLoopVariable = 0;
+		  break;
 	    case 1:
           convertToLog(voiceChoice);
 	      break;
@@ -340,7 +341,9 @@ int main(){
           break;    
 	  }
 	}
-        
+    
+	printf("Thank you !!!");
+	exit(EXIT_SUCCESS);
 
 	return 0;
 }
