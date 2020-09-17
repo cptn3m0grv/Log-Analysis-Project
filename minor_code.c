@@ -43,77 +43,107 @@ void banner(){
 
 void ipBlockUnblock(char voiceChoice){
 
-	// Variable declaration
-	int v = 0;
-    // Asking for the IP to block
-	if(voiceChoice == 'y') v = 1;
     int status;
 
     char commandBlock[] = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
-	char CommandUnblock[] = "firewall-cmd --permanent --remove-rich-rule=\"rule family='ipv4' source address='";
+	char commandUnblock[] = "firewall-cmd --permanent --remove-rich-rule=\"rule family='ipv4' source address='";
 	char IP[20];
 	char tail[] = "' reject\"";
     int ipChoice;
 	
-
-	
-	if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
-
-    printf("\n	1. Block a particular IP");
-    printf("\n	2. Unblock the previously blocked IP");
-    printf("\n	0. Exit\n");
-
-	printf("	Enter the choice from above list: ");
-	scanf("%d", &ipChoice);
-
-    switch(ipChoice){
-        case 0:
-			break;
-        case 1:
-			if(v) {system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");}
-			printf("		Enter the IP to Block: ");
-			scanf("%s", IP);
-			// concatenating the command
-			strcat(commandBlock, IP);
-			strcat(commandBlock, tail);
-			// Blocking the IP
-			status = system(commandBlock);           
-            break;
-        case 2:
-			if(v) {system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to unblock\"");}
-			printf("		Enter the IP to Unblock: ");
-			scanf("%s", IP);
-			// concatenating the command
-			strcat(CommandUnblock, IP);
-			strcat(CommandUnblock, tail);
-			// Blocking the IP
-			status = system(CommandUnblock);            
-            break;
-        default:
-            printf("		Invalid Option !!");
-			break;
+	if(voiceChoice == 'y') {
+        system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
     }
 
-	// throwing an error if IP blocking was failed
-	if(status != 0 ){
-		if(v) system("espeak-ng -p 81 -a 55 -s 140 \"There is some error during the process\"");
-		printf("	Blocking/Unblocking IP not successful\n");
-		exit(EXIT_SUCCESS);
+    printf("1. Block a particular IP\n");
+    printf("2. Unblock a previously blocked IP\n");
+    printf("3. Exit\n");
+
+
+	while(1){
+		printf("Enter you choice: ");
+		scanf("%d", &ipChoice);
+
+		switch (ipChoice){
+		case 0:
+			if(voiceChoice == 'y'){
+            	system("espeak-ng -p 81 -a 55 -s 140 \"Thank you\"");
+            }
+            printf("Thank you !!!");
+            exit(EXIT_SUCCESS);
+			break;
+
+		case 1:
+			if(voiceChoice == 'y'){
+				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");
+			}
+			// Asking for IP
+			printf("Enter the IP to block: ");
+			scanf("%s", IP);
+
+			strcat(commandBlock, IP);
+			strcat(commandBlock, tail);
+
+			printf("Blocking the IP: ");
+			colorGreen();
+			status = system(commandBlock);
+			colorReset();
+
+			if(status != 0){
+				if(voiceChoice == 'y') {
+					system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while blocking this IP\"");
+				}
+				printf("Error faced during the process !!!!");
+			}
+			
+			printf("\nReloading the firewall: ");
+			colorGreen();
+			system("firewall-cmd --reload");
+			colorReset();
+			printf("\nDisplaying Firewall Rules--|\n");
+			colorGreen();
+			system("firewall-cmd --list-all");
+			colorReset();
+			break;
+		
+		case 2:
+			if(voiceChoice == 'y'){
+				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to UnBlock\"");
+			}
+			printf("Enter the IP to Unblock: ");
+			scanf("%s", IP);
+
+			strcat(commandUnblock, IP);
+			strcat(commandUnblock, tail);
+
+			printf("Unblocking the IP: ");
+			colorGreen();
+			status = system(commandUnblock);
+			colorReset(); 
+
+			if(status != 0){
+				if(voiceChoice == 'y') {
+					system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while unblocking this IP\"");
+				}
+				printf("Error faced during the process !!!!");
+			}
+
+			printf("\nReloading the firewall: ");
+			colorGreen();
+			system("firewall-cmd --reload");
+			colorReset();
+			printf("\nDisplaying Firewall Rules--|\n");
+			colorGreen();
+			system("firewall-cmd --list-all");
+			colorReset();
+			break;
+
+		default:
+			printf("Invalid Option!!");
+			break;
+		}
 	}
 
-	// reload the firewall rules to complete the process
-    system("firewall-cmd --reload");
-    system("firewall-cmd --list-all");
-
-
-	if(v){ system("espeak-ng -p 81 -a 55 -s 140 \"Ip blocked successfully\"");}
-	colorGreen();
-	if(ipChoice == 1){
-		printf("	IP blocked successfully.\n");
-	} else if(ipChoice == 2){
-		printf("	Ip Unblocker successfully.\n");
-	}
-	colorReset();
 }
 
 
