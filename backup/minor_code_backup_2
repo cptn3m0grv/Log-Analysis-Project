@@ -41,46 +41,6 @@ void banner(){
 
 }
 
-void unblockAndDeleteFromFile(char *IP){
-    FILE *fp;
-    fp = fopen("removeIp.sh", "w");
-    fprintf(fp, "#!/bin/bash");
-    fprintf(fp, "\nsudo sed -i '/%s/d' ./block.txt", IP);
-    fclose(fp);
-    system("chmod +x removeIp.sh");
-    system("./removeIp.sh");
-    system("rm -f removeIp.sh");
-}
-
-void blockedAndAddToFile(char *IP){
-
-    FILE *fp, *fptr;
-    char line[25];
-    int availaible = 0;
-    int ipBlocked = 0;
-    
-    fptr = fopen("block.txt", "a");
-    fclose(fptr);
-
-    fp = fopen("block.txt","r");
-    while(EOF != fscanf(fp, "%25[^\n]\n", line)){
-        if(strstr(line , IP) != NULL){
-            availaible = 1;
-        }
-    }
-    fclose(fp);
-
-    if(availaible == 0){
-        fp = fopen("block.txt", "a");
-        fprintf(fp, "%s\n", IP);
-        fclose(fp);
-    }else{
-        printf("\nIP IS ALREADY BLOCKED, SELECT ANOTHER OPTION IF YOU WANT TO UNBLOCK IT!!\n");
-        ipBlocked = 1;
-    }
-
-}
-
 void ipBlockUnblock(char voiceChoice){
 
     int status;
@@ -96,21 +56,20 @@ void ipBlockUnblock(char voiceChoice){
         system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
     }
 
-	colorYellow();
-    printf(" 1. Block a particular IP\n");
-    printf(" 2. Unblock a previously blocked IP\n");
-    printf(" 0. Exit\n");
-	colorReset();
+    printf("	1. Block a particular IP\n");
+    printf("	2. Unblock a previously blocked IP\n");
+    printf("	3. Exit\n");
 
 
 	while(whileLoopVariable){
-		colorCyan();
-		printf(" Enter you choice: ");
-		colorReset();
+		printf("	 Enter you choice: ");
 		scanf("%d", &ipChoice);
 
 		switch (ipChoice){
 		case 0:
+			if(voiceChoice == 'y'){
+            	system("espeak-ng -p 81 -a 55 -s 140 \"Thank you\"");
+            }
             whileLoopVariable = 0;
 			break;
 
@@ -119,13 +78,13 @@ void ipBlockUnblock(char voiceChoice){
 				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");
 			}
 			// Asking for IP
-			printf(" Enter the IP to block: ");
+			printf("	 Enter the IP to block: ");
 			scanf("%s", IP);
 
 			strcat(commandBlock, IP);
 			strcat(commandBlock, tail);
 
-			printf(" Blocking the IP\n");
+			printf("Blocking the IP: ");
 			colorGreen();
 			status = system(commandBlock);
 			colorReset();
@@ -137,25 +96,27 @@ void ipBlockUnblock(char voiceChoice){
 				printf("Error faced during the process !!!!");
 			}
 			
-			
+			printf("\nReloading the firewall: ");
+			colorGreen();
 			system("firewall-cmd --reload");
+			colorReset();
+			printf("\nDisplaying Firewall Rules--|\n");
+			colorGreen();
 			system("firewall-cmd --list-all");
-
-			blockedAndAddToFile(IP);
-
+			colorReset();
 			break;
 		
 		case 2:
 			if(voiceChoice == 'y'){
 				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to UnBlock\"");
 			}
-			printf(" Enter the IP to Unblock: ");
+			printf("	 Enter the IP to Unblock: ");
 			scanf("%s", IP);
 
 			strcat(commandUnblock, IP);
 			strcat(commandUnblock, tail);
 
-			printf(" Unblocking the IP\n");
+			printf("Unblocking the IP: ");
 			colorGreen();
 			status = system(commandUnblock);
 			colorReset(); 
@@ -167,15 +128,18 @@ void ipBlockUnblock(char voiceChoice){
 				printf("Error faced during the process !!!!");
 			}
 
+			printf("\nReloading the firewall: ");
+			colorGreen();
 			system("firewall-cmd --reload");
+			colorReset();
+			printf("\nDisplaying Firewall Rules--|\n");
+			colorGreen();
 			system("firewall-cmd --list-all");
-
-			unblockAndDeleteFromFile(IP);
-
+			colorReset();
 			break;
 
 		default:
-			printf("\nInvalid Option!!\n");
+			printf("Invalid Option!!");
 			break;
 		}
 	}
@@ -193,17 +157,19 @@ void convertToLog(char voiceChoice){
 	int v = 0;                // variable for enabling/diabling voice assistance
 
 	if(voiceChoice == 'y') v = 1;	// if the voiceChoice argument was true then usage of voice assistant will be enabled
+
+	if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the location of the log file\""); // only run if v is set to true
 	
 	// take the path of log file
 	printf("Enter the location of log file: ");
-	if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the location of the log file\""); // only run if v is set to true
     scanf("%s", path);
+
+	if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the path of  CSV file\"");
 
 	// CSV file path where it is to be saved
     printf("\nCSV file path: ");
-    if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the path of  CSV file\"");    
     scanf("%s", logName);
-	
+        
 	// write a script to convert log file into CSV
 	fp = fopen("script.sh", "w");
         
@@ -244,7 +210,7 @@ void searchForKeyword(char voiceChoice){
 	// enabling the voice assistant
 	if(voiceChoice == 'y') { v = 1; }
 
-	printf("\n");
+
 	printf(" 1. Search with IP\n");
 	printf(" 2. Search with Date (DD/Mon/YYYY)\n");
 	printf(" 3. Search with HTTP Method\n");
@@ -253,7 +219,7 @@ void searchForKeyword(char voiceChoice){
 
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the choice\""); }
 
-	printf("\n Enter you choice: ");
+	printf("\n Enter the choice: ");
 	scanf("%d", &swChoice);
 
 	// ask for the word to be searched in a file
@@ -292,7 +258,7 @@ void searchForKeyword(char voiceChoice){
 
     // ask for the path of file in which the word is to be searched
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the location of file\""); }
-    printf(" Enter the location of log file: ");
+    printf("Enter the location of log file: ");
     scanf("%s", path);
 
 	// file opened
@@ -346,7 +312,7 @@ int main(){
 		printf("3. Block / Unblock a particular IP using firewall.\n");
 		printf("0. Exit program\n");	
 
-		printf("\nSelect an option: ");
+		printf("\nEnter your choice: ");
 		scanf("%d", &choice);
 
         // call functions for the respective tasks
@@ -375,10 +341,9 @@ int main(){
           break;    
 	  }
 	}
-	
-	colorGreen();
-	printf("\n\n\t\tThank you !!!\n");
-	colorReset();
+    
+	printf("Thank you !!!");
+	exit(EXIT_SUCCESS);
 
 	return 0;
 }
