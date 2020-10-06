@@ -1,13 +1,21 @@
+// while loop in pattern search
+// dynamic mem allocation, pointers, structures, searching, pattern matching, regular expression, file handling
+
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
+
+struct ipList{
+	char *IP;
+	int count;
+};
 
 void colorRed(){ 
     printf("\033[1;31m"); 
 }
 
 void colorReset(){ 
-    printf("\033[0m;"); 
+    printf("\033[0m"); 
 }
 
 void colorYellow(){ 
@@ -20,6 +28,13 @@ void colorGreen(){
 
 void colorCyan(){
 	printf("\033[0;36m");
+}
+
+char* concat(const char *s1, const char *s2){
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
+    strcpy(result, s1);
+    strcat(result, s2);
+    return result;
 }
 
 void banner(){
@@ -41,23 +56,169 @@ void banner(){
 
 }
 
-void unblockAndDeleteFromFile(char *IP){
-    FILE *fp;
-    fp = fopen("removeIp.sh", "w");
-    fprintf(fp, "#!/bin/bash");
-    fprintf(fp, "\nsudo sed -i '/%s/d' ./block.txt", IP);
-    fclose(fp);
-    system("chmod +x removeIp.sh");
-    system("./removeIp.sh");
-    system("rm -f removeIp.sh");
+void subBanner(void){
+	colorCyan();
+	printf("          <<<<<    Log Analysis Tool Using Pattern Matching and Regex    >>>>>         \n"); // Pink, Light blue
+	printf("\n");
+	colorReset();
 }
 
-void blockedAndAddToFile(char *IP){
+void manualVisualize(char path[], int size, int v){
+	
+	char line[150];
+	struct ipList list[size];
+	int i, j;
+	FILE *fp;
+	int originalCount;
+
+	if(v == 1){
+		system("espeak-ng -p 81 -a 55 -s 140 \"Enter the list of I P one by one\"");
+	}
+
+	// array initialization
+	// O(n) --> n = number of IPs
+	for(i = 0; i < size; i++){
+		printf("  Enter the IP(# %d): ", i+1);
+		list[i].IP = (char *)malloc(20*sizeof(char *));
+		scanf("%s", list[i].IP);
+		list[i].count = 0;
+	}
+
+	// O(n.m) --> n = number of IPs, m ---> length of file
+	for(i = 0; i < size; i++){
+		fp = fopen(path, "r");
+		while(fscanf(fp, "%150[^\n]\n", line) != EOF){
+			if(strstr(line, list[i].IP) != NULL){
+				list[i].count += 1;
+			}
+		}
+		fclose(fp);
+	}
+
+	printf("\n");
+	//O(nm) --> n = number of ip, m = occurence of Ip in a particular file / 10
+ 	for(i = 0; i < size; i++){
+		colorYellow();
+		printf("%-15s | ", list[i].IP);
+		originalCount = list[i].count;
+		list[i].count = list[i].count / 10; // scaling
+		colorGreen();
+		for(j = 1; j <= list[i].count; j++){
+			printf("# ");
+		}
+		colorCyan();
+		printf(" %d", originalCount);
+		colorReset();
+		printf("\n");
+	}
+
+	if(v == 1){
+		system("espeak-ng -p 81 -a 55 -s 140 \"Result	s displayed\"");
+	}
+
+	printf("\n");
+	colorRed();
+	printf("   Each '#' represents 10 occurences in the log file !!!\n\n");
+	colorReset();
+
+
+}
+
+void visualizeLog(char voiceChoice){
+
+	int whileLoopVariable = 1, choice;
+	char path[128];
+	int size;
+	int v = 0;
+
+	if(voiceChoice == 'y'){
+		v = 1;
+	}
+
+	printf("  1. Enter IP manually\n");
+	printf("  2. Enter a file containing list of IP(s)\n");
+	printf("  3. Back to Main\n");
+
+	while(whileLoopVariable){
+
+		if(voiceChoice == 'y'){
+        	system("espeak-ng -p 81 -a 55 -s 140 \"Choose an option\"");
+    	}
+
+		printf("  Choose an option: ");
+		scanf("%d", &choice);
+
+		switch(choice){
+			case 1:
+				if(voiceChoice == 'y'){
+					system("espeak-ng -p 81 -a 55 -s 140 \"Enter the log file to analyze\"");
+				}
+				printf("  Enter the log file to visualize: ");
+				scanf("%s", path);
+
+				if(voiceChoice == 'y'){
+					system("espeak-ng -p 81 -a 55 -s 140 \"Enter the number of I P to visualize\"");
+				}
+				printf("  Enter the number of IP(s) you wish to visualize: ");
+				scanf("%d", &size);
+
+				manualVisualize(path, size, v);
+				break;
+
+			case 2:
+				printf("  Nothing here yet!!!\n");
+				break;
+
+			case 3:
+				whileLoopVariable = 0;
+				break;
+
+			default:
+				if(voiceChoice == 'y'){
+					system("espeak-ng -p 81 -a 55 -s 140 \"Please select a valid option\"");
+				}
+				printf("  Invalid Option!!!\n");
+				break;
+		}
+
+	}
+
+}
+
+int unblockAndDeleteFromFile(char IP[]){
+
+    FILE *fp;
+    char line[25];
+    int availaible = 0;
+
+    fp = fopen("block.txt","r");
+    while(EOF != fscanf(fp, "%25[^\n]\n", line)){
+        if(strstr(line , IP) != NULL){
+            availaible = 1;
+        }
+    }
+    fclose(fp);
+
+    if(availaible == 1){
+        fp = fopen("removeIp.sh", "w");
+        fprintf(fp, "#!/bin/bash");
+        fprintf(fp, "\nsudo sed -i '/%s/d' ./block.txt", IP);
+        fclose(fp);
+        system("chmod +x removeIp.sh");
+        system("./removeIp.sh");
+        system("rm -f removeIp.sh");
+        return 0;
+    }else{
+        printf("\nThe IP is not in the blocked list !!!\n");
+        return 1;
+    }
+}
+
+int blockedAndAddToFile(char IP[]){
 
     FILE *fp, *fptr;
     char line[25];
     int availaible = 0;
-    int ipBlocked = 0;
     
     fptr = fopen("block.txt", "a");
     fclose(fptr);
@@ -74,10 +235,109 @@ void blockedAndAddToFile(char *IP){
         fp = fopen("block.txt", "a");
         fprintf(fp, "%s\n", IP);
         fclose(fp);
+        return 0;
     }else{
         printf("\nIP IS ALREADY BLOCKED, SELECT ANOTHER OPTION IF YOU WANT TO UNBLOCK IT!!\n");
-        ipBlocked = 1;
+        return 1;
     }
+
+}
+
+void block(char voiceChoice){
+
+    char *command = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
+    char IP[20];
+    char *tail = "' reject\"";
+    int status;
+
+    if(voiceChoice == 'y'){
+        system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");
+    }
+    // Asking for IP
+    printf(" Enter the IP to block: ");
+    scanf("%s", IP);
+
+    if(blockedAndAddToFile(IP) == 0){
+        
+        char *s = concat(command, IP);
+        char *t = concat(s, tail);
+
+        printf(" Blocking the IP\n");
+        colorGreen();
+        status = system(t);
+        colorReset();
+
+        if(status != 0){
+            if(voiceChoice == 'y') {
+                system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while blocking this IP\"");
+            }
+            printf("Error faced during the process !!!!\n");
+        }
+        system("firewall-cmd --reload");
+        free(s); free(t);
+    }
+
+    printf("\n");
+}
+
+void unblock(char voiceChoice){
+
+    int status;
+    char *command = "firewall-cmd --permanent --remove-rich-rule=\"rule family='ipv4' source address='";
+    char IP[20];
+	char *tail= "' reject\"";
+
+    if(voiceChoice == 'y'){
+        system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to UnBlock\"");
+    }
+    printf(" Enter the IP to Unblock: ");
+    scanf("%s", IP);
+
+    if(unblockAndDeleteFromFile(IP) == 0){
+        
+        char *s = concat(command, IP);
+        char *t = concat(s, tail);
+
+        printf(" Unblocking the IP\n");
+        colorGreen();
+        status = system(t);
+        colorReset(); 
+
+        if(status != 0){
+            if(voiceChoice == 'y') {
+                system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while unblocking this IP\"");
+            }
+            printf("Error faced during the process !!!!\n");
+        }else{
+            system("firewall-cmd --reload");
+            free(s); free(t);
+        }
+    }
+    printf("\n");
+}
+
+void displayBlockedIP(void){
+	
+	FILE *fp;
+	char line[30];
+	int numberofLines = 0;
+
+	fp = fopen("block.txt", "r");
+	
+	while(EOF != fscanf(fp, "%30[^\n]\n", line)){
+		colorRed();
+		printf("%s\n" , line);
+		numberofLines += 1;
+		colorReset();
+    }
+	
+	fclose(fp);
+
+	colorGreen();
+	printf("\t\t********* %d line(s) displayed *********\n", numberofLines);
+	colorReset();
+
+	return;
 
 }
 
@@ -85,103 +345,53 @@ void ipBlockUnblock(char voiceChoice){
 
     int status;
 	int whileLoopVariable = 1;
-
-    char commandBlock[] = "firewall-cmd --permanent --add-rich-rule=\"rule family='ipv4' source address='";
-	char commandUnblock[] = "firewall-cmd --permanent --remove-rich-rule=\"rule family='ipv4' source address='";
-	char IP[20];
-	char tail[] = "' reject\"";
     int ipChoice;
 	
-	if(voiceChoice == 'y') {
-        system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
-    }
-
-	colorYellow();
-    printf(" 1. Block a particular IP\n");
-    printf(" 2. Unblock a previously blocked IP\n");
-    printf(" 0. Exit\n");
-	colorReset();
 
 
 	while(whileLoopVariable){
+        if(voiceChoice == 'y') {
+            system("espeak-ng -p 81 -a 55 -s 140 \"Please select an option\"");
+        }
+
+        colorYellow();
+        printf(" 1. Block a particular IP\n");
+        printf(" 2. Unblock a previously blocked IP\n");
+		printf(" 3. Display the blocked lists\n");
+        printf(" 0. Back To Main\n");
+
 		colorCyan();
 		printf(" Enter you choice: ");
 		colorReset();
 		scanf("%d", &ipChoice);
 
 		switch (ipChoice){
-		case 0:
-            whileLoopVariable = 0;
-			break;
-
-		case 1:
-			if(voiceChoice == 'y'){
-				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to Block\"");
-			}
-			// Asking for IP
-			printf(" Enter the IP to block: ");
-			scanf("%s", IP);
-
-			strcat(commandBlock, IP);
-			strcat(commandBlock, tail);
-
-			printf(" Blocking the IP\n");
-			colorGreen();
-			status = system(commandBlock);
-			colorReset();
-
-			if(status != 0){
-				if(voiceChoice == 'y') {
-					system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while blocking this IP\"");
+		    case 0:
+                whileLoopVariable = 0;
+			    break;
+            case 1:
+                block(voiceChoice);
+                break;
+            case 2:
+                unblock(voiceChoice);
+                break;
+			case 3:
+				if(voiceChoice == 'y'){
+					system("espeak-ng -p 81 -a 55 -s 140 \"Displaying blocked IP\"");
 				}
-				printf("Error faced during the process !!!!");
-			}
-			
-			
-			system("firewall-cmd --reload");
-			system("firewall-cmd --list-all");
-
-			blockedAndAddToFile(IP);
-
-			break;
-		
-		case 2:
-			if(voiceChoice == 'y'){
-				system("espeak-ng -p 81 -a 55 -s 140 \"Enter the IP to UnBlock\"");
-			}
-			printf(" Enter the IP to Unblock: ");
-			scanf("%s", IP);
-
-			strcat(commandUnblock, IP);
-			strcat(commandUnblock, tail);
-
-			printf(" Unblocking the IP\n");
-			colorGreen();
-			status = system(commandUnblock);
-			colorReset(); 
-
-			if(status != 0){
-				if(voiceChoice == 'y') {
-					system("espeak-ng -p 81 -a 55 -s 140 \"Facing an error while unblocking this IP\"");
+				displayBlockedIP();
+				if(voiceChoice == 'y'){
+					system("sleep 2");					
+					system("espeak-ng -p 81 -a 55 -s 140 \"Blocked IPs displayed\"");
 				}
-				printf("Error faced during the process !!!!");
-			}
-
-			system("firewall-cmd --reload");
-			system("firewall-cmd --list-all");
-
-			unblockAndDeleteFromFile(IP);
-
-			break;
-
-		default:
-			printf("\nInvalid Option!!\n");
-			break;
+				break;
+            default:
+                printf("\nInvalid Option!!\n");
+                break;
 		}
 	}
 
-}
-
+}	
 
 void convertToLog(char voiceChoice){
 	
@@ -241,6 +451,7 @@ void searchForKeyword(char voiceChoice){
     char word[100];
 	char path[128];
 	int swChoice;
+	int numberOfLines = 0;
 	// enabling the voice assistant
 	if(voiceChoice == 'y') { v = 1; }
 
@@ -299,23 +510,30 @@ void searchForKeyword(char voiceChoice){
 
     fp = fopen(path,"r");
 
+	// O(n), to traverse each line
     while(EOF != fscanf(fp, "%150[^\n]\n", line)){
         if(strstr(line , word) != NULL){
             colorRed();
-            printf("\b> %s\n" , line);
+            printf("> %s\n" , line);
+			numberOfLines += 1;
             colorReset();
         }else{
-        continue;
+        	continue;
         }
     }
 
     fclose(fp);
 	// file closed after displaying the output
+
+	colorGreen();
+	printf("\t\t********* %d line(s) displayed *********\n", numberOfLines);
+	colorReset();
+
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"output displayed\""); }
 
 }
 
-int main(){
+int main(void){
 	
 	// Variable Declaration
 	int whileLoopVariable = 1;
@@ -344,6 +562,7 @@ int main(){
 		printf("1. To covert log file into CSV file.\n");
 		printf("2. To search for a occurence of a word in log file.\n");
 		printf("3. Block / Unblock a particular IP using firewall.\n");
+		printf("4. Visualize Log Files\n");
 		printf("0. Exit program\n");	
 
 		printf("\nSelect an option: ");
@@ -358,16 +577,28 @@ int main(){
 		  whileLoopVariable = 0;
 		  break;
 	    case 1:
+		  system("clear");
+		  subBanner();
           convertToLog(voiceChoice);
 	      break;
 
         case 2:
+		  system("clear");
+		  subBanner();
           searchForKeyword(voiceChoice);
           break;
 
 	    case 3:
+		  system("clear");
+		  subBanner();
 	      ipBlockUnblock(voiceChoice);
 	      break;
+
+		case 4:
+		  system("clear");
+		  subBanner();
+		  visualizeLog(voiceChoice);
+		  break;
 
         default:
 	      if(voiceChoice == 'y'){ system("espeak-ng  -p 81 -a 55 -s 140 \"Not a valid option\""); }
