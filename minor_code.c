@@ -1,4 +1,3 @@
-// while loop in pattern search
 // dynamic mem allocation, pointers, structures, searching, pattern matching, regular expression, file handling
 
 #include<stdio.h>
@@ -441,88 +440,38 @@ void convertToLog(char voiceChoice){
 	system("rm script.sh -f");
 }
 
-void searchForKeyword(char voiceChoice){   
+void grepify(char word[], int v){
 
-    // Variable declarationa
-	int v = 0;
-	FILE *fp;
-	char * s;
-    char line[150];
-    char word[100];
+
 	char path[128];
-	int swChoice;
+	FILE *fp;
 	int numberOfLines = 0;
-	// enabling the voice assistant
-	if(voiceChoice == 'y') { v = 1; }
+    char line[200];
 
-	printf("\n");
-	printf(" 1. Search with IP\n");
-	printf(" 2. Search with Date (DD/Mon/YYYY)\n");
-	printf(" 3. Search with HTTP Method\n");
-	printf(" 4. Status Code / Response Code\n");
-	printf(" 5. Search with page name or others\n");
 
-	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the choice\""); }
+	// ask for the path of file in which the word is to be searched
 
-	printf("\n Enter you choice: ");
-	scanf("%d", &swChoice);
-
-	// ask for the word to be searched in a file
-	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the pattern to be searched\""); }
-
-	switch (swChoice){
-		case 1:
-			printf("\n Enter the IP: ");
-			scanf("%s", word);
-			break;
-		case 2:
-			printf("\n Enter the Date [Ex. 04/Nov/2000]: ");
-			scanf("%s", word);
-			break;
-		case 3:
-			s = word;
-			printf("\n Enter the HTTP method: ");
-			scanf("%s", word);
-			while(*s){
-				*s = (*s > 'a' && *s <= 'z') ? *s-32 : *s;
-				s++;
-			}
-			break;
-		case 4:
-			printf("\n Enter the status code/ response code: ");
-			scanf("%s", word);
-			break;
-		case 5:
-			printf("\n Others(Case sensitive): ");
-			scanf("%s", word);
-			break;
-		default:
-			printf("Invalid Option!!!");
-			break;
-	}
-
-    // ask for the path of file in which the word is to be searched
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the location of file\""); }
-    printf(" Enter the location of log file: ");
-    scanf("%s", path);
+	printf(" Enter the location of log file: ");
+	scanf("%s", path);
 
 	// file opened
 
-    fp = fopen(path,"r");
+	fp = fopen(path,"r");
 
 	// O(n), to traverse each line
-    while(EOF != fscanf(fp, "%150[^\n]\n", line)){
-        if(strstr(line , word) != NULL){
-            colorRed();
-            printf("> %s\n" , line);
+	while(EOF != fscanf(fp, "%200[^\n]\n", line)){
+		if(strstr(line , word) != NULL){
+			colorRed();
+			printf("> %s\n" , line);
 			numberOfLines += 1;
-            colorReset();
-        }else{
-        	continue;
-        }
-    }
+			colorReset();
+		}else{
+			continue;
+		}
+	}
 
-    fclose(fp);
+	fclose(fp);
 	// file closed after displaying the output
 
 	colorGreen();
@@ -530,7 +479,76 @@ void searchForKeyword(char voiceChoice){
 	colorReset();
 
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"output displayed\""); }
+}
 
+void searchForKeyword(char voiceChoice){   
+
+    // Variable declarationa
+	int v = 0;
+	char * s;
+    char word[100];
+	int swChoice;
+	int whileLoopVariable = 1;
+	// enabling the voice assistant
+	if(voiceChoice == 'y') { v = 1; }
+
+	// while loop begins
+	while(whileLoopVariable){
+		printf("\n");
+		printf(" 1. Search with IP\n");
+		printf(" 2. Search with Date (DD/Mon/YYYY)\n");
+		printf(" 3. Search with HTTP Method\n");
+		printf(" 4. Status Code / Response Code\n");
+		printf(" 5. Search with page name or others\n");
+		printf(" 0. Back To Main\n");
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the choice\""); }
+
+		printf("\n Enter you choice: ");
+		scanf("%d", &swChoice);
+
+		// ask for the word to be searched in a file
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the pattern to be searched\""); }
+
+		switch (swChoice){
+			case 0:
+				whileLoopVariable = 0;
+				break;
+			case 1:
+				printf("\n Enter the IP: ");
+				scanf("%s", word);
+				grepify(word, v);
+				break;
+			case 2:
+				printf("\n Enter the Date [Ex. 04/Nov/2000]: ");
+				scanf("%s", word);
+				grepify(word, v);
+				break;
+			case 3:
+				s = word;
+				printf("\n Enter the HTTP method: ");
+				scanf("%s", word);
+				while(*s){
+					*s = (*s > 'a' && *s <= 'z') ? *s-32 : *s;
+					s++;
+				}
+				grepify(word, v);
+				break;
+			case 4:
+				printf("\n Enter the status code/ response code: ");
+				scanf("%s", word);
+				grepify(word, v);
+				break;
+			case 5:
+				printf("\n Others(Case sensitive): ");
+				scanf("%s", word);
+				grepify(word, v);
+				break;
+			default:
+				printf("Invalid Option!!!");
+				break;
+		}
+	}
+	//while loop ends
 }
 
 int main(void){
