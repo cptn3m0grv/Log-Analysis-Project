@@ -1,13 +1,27 @@
 // dynamic mem allocation, pointers, structures, searching, pattern matching, regular expression, file handling
+// name of algo --> linear search
+// techniques used
+// time based --> smartly 
 
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
 
+/*
+*	Structure to keep count of occurences of IP in the log file
+*	and then to create a graph using it.
+*/
+
 struct ipList{
 	char *IP;
 	int count;
 };
+
+/*
+*	The following 5 functions change the color of output to
+*	red, yellow, green, and cyan .
+*	The fifth function is to reset the color back to default.
+*/
 
 void colorRed(){ 
     printf("\033[1;31m"); 
@@ -29,12 +43,20 @@ void colorCyan(){
 	printf("\033[0;36m");
 }
 
+/*
+*	The following function is to concatenate two strings
+*/
+
 char* concat(const char *s1, const char *s2){
     char *result = malloc(strlen(s1) + strlen(s2) + 1); // +1 for the null-terminator
     strcpy(result, s1);
     strcat(result, s2);
     return result;
 }
+
+/*
+*	The following function is to print the intro banner of the program
+*/
 
 void banner(){
 
@@ -55,6 +77,11 @@ void banner(){
 
 }
 
+/*
+*	The following function prints a banner whenever a new options is selected
+* 	it will also act as a permanent header for the program
+*/
+
 void subBanner(void){
 	colorCyan();
 	printf("          <<<<<    Log Analysis Tool Using Pattern Matching and Regex    >>>>>         \n"); // Pink, Light blue
@@ -70,12 +97,22 @@ void manualVisualize(char path[], int size, int v){
 	FILE *fp;
 	int originalCount;
 
+	/*
+	*	This is the option to enable voice assistance.
+	*/
+
 	if(v == 1){
 		system("espeak-ng -p 81 -a 55 -s 140 \"Enter the list of I P one by one\"");
 	}
 
 	// array initialization
 	// O(n) --> n = number of IPs
+
+	/*
+	*	This for loop will take 'N' IP(s) from user,
+	*	the input IP(s) will then be stored in the array of structures
+	*/
+
 	for(i = 0; i < size; i++){
 		printf("  Enter the IP(# %d): ", i+1);
 		list[i].IP = (char *)malloc(20*sizeof(char *));
@@ -84,6 +121,13 @@ void manualVisualize(char path[], int size, int v){
 	}
 
 	// O(n.m) --> n = number of IPs, m ---> length of file
+
+	/*
+	*	This for loop will count the number of occurences of each IP stored
+	*	in the arrays of structure.
+	*	The count will then be stored in the form of a hashmap.
+	*/
+
 	for(i = 0; i < size; i++){
 		fp = fopen(path, "r");
 		while(fscanf(fp, "%150[^\n]\n", line) != EOF){
@@ -96,6 +140,12 @@ void manualVisualize(char path[], int size, int v){
 
 	printf("\n");
 	//O(nm) --> n = number of ip, m = occurence of Ip in a particular file / 10
+
+	/*
+	*	We will now be printing the graph.
+	*	One "#" will be printed for every 10 occurences of the IP.
+	*/
+
  	for(i = 0; i < size; i++){
 		colorYellow();
 		printf("%-15s | ", list[i].IP);
@@ -130,13 +180,27 @@ void visualizeLog(char voiceChoice){
 	int size;
 	int v = 0;
 
+	/*
+	*	This is the option to enable voice assistance.
+	*/
+
 	if(voiceChoice == 'y'){
 		v = 1;
 	}
 
+	/*
+	* displaying menu to select the choice from.
+	*/
+
 	printf("  1. Enter IP manually\n");
-	printf("  2. Enter a file containing list of IP(s)\n");
-	printf("  3. Back to Main\n");
+	// printf("  2. Enter a file containing list of IP(s)\n");
+	printf("  0. Back to Main\n");
+
+	/*
+	* While loop to run continously until the user stops it.
+	* Whenever the user want to go back to main, the value of "whileLoopVariable" is set to 0
+	* and the loop stops and the user is redirected to the main menu again.
+	*/
 
 	while(whileLoopVariable){
 
@@ -148,12 +212,25 @@ void visualizeLog(char voiceChoice){
 		scanf("%d", &choice);
 
 		switch(choice){
+
+			case 0:
+				whileLoopVariable = 0;
+				break;
+
 			case 1:
+				/*
+				* We would ask for the path of log file here.
+				*/
+
 				if(voiceChoice == 'y'){
 					system("espeak-ng -p 81 -a 55 -s 140 \"Enter the log file to analyze\"");
 				}
 				printf("  Enter the log file to visualize: ");
 				scanf("%s", path);
+
+				/*
+				* We then ask to enter the number of IP(s) he is going to enter later on.
+				*/
 
 				if(voiceChoice == 'y'){
 					system("espeak-ng -p 81 -a 55 -s 140 \"Enter the number of I P to visualize\"");
@@ -164,13 +241,10 @@ void visualizeLog(char voiceChoice){
 				manualVisualize(path, size, v);
 				break;
 
-			case 2:
-				printf("  Nothing here yet!!!\n");
-				break;
+			// case 2:
+			// 	printf("  Nothing here yet!!!\n");
+			// 	break;
 
-			case 3:
-				whileLoopVariable = 0;
-				break;
 
 			default:
 				if(voiceChoice == 'y'){
@@ -440,16 +514,22 @@ void convertToLog(char voiceChoice){
 	system("rm script.sh -f");
 }
 
-void grepify(char word[], int v){
+void grepify(char word[], int v, int outToFile){
 
 
 	char path[128];
-	FILE *fp;
+	FILE *fp, *out;
 	int numberOfLines = 0;
     char line[200];
+    char fileName[50];
 
 
 	// ask for the path of file in which the word is to be searched
+
+    if(outToFile){
+        printf(" Enter the name of file to be saved in (the file will be overwritten if it already exists): ");
+        scanf("%s", fileName);
+    }
 
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the location of file\""); }
 	printf(" Enter the location of log file: ");
@@ -458,13 +538,18 @@ void grepify(char word[], int v){
 	// file opened
 
 	fp = fopen(path,"r");
-
+    if(outToFile){
+        out = fopen(fileName, "w");
+    }
 	// O(n), to traverse each line
 	while(EOF != fscanf(fp, "%200[^\n]\n", line)){
 		if(strstr(line , word) != NULL){
 			colorRed();
+			++numberOfLines;
 			printf("> %s\n" , line);
-			numberOfLines += 1;
+            if(outToFile){
+                fprintf(out, "%d %s\n", numberOfLines, line);
+            }
 			colorReset();
 		}else{
 			continue;
@@ -472,13 +557,21 @@ void grepify(char word[], int v){
 	}
 
 	fclose(fp);
+    if(outToFile){
+        fclose(out);
+    }
 	// file closed after displaying the output
 
 	colorGreen();
 	printf("\t\t********* %d line(s) displayed *********\n", numberOfLines);
+    if(outToFile){
+        printf("\t\t********* Output saved to file *********\n");
+    }
 	colorReset();
 
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"output displayed\""); }
+
+    return;
 }
 
 void searchForKeyword(char voiceChoice){   
@@ -489,6 +582,9 @@ void searchForKeyword(char voiceChoice){
     char word[100];
 	int swChoice;
 	int whileLoopVariable = 1;
+	char chr;
+	int outToFile;
+
 	// enabling the voice assistant
 	if(voiceChoice == 'y') { v = 1; }
 
@@ -502,9 +598,15 @@ void searchForKeyword(char voiceChoice){
 		printf(" 5. Search with page name or others\n");
 		printf(" 0. Back To Main\n");
 		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the choice\""); }
+		
 
 		printf("\n Enter you choice: ");
 		scanf("%d", &swChoice);
+
+		// printf("Do you want to save the output in a separate file(y/n): ");
+		// scanf(" %c", &chr);
+
+		// outToFile = (chr == 'y') ? 1 : 0;
 
 		// ask for the word to be searched in a file
 		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the pattern to be searched\""); }
@@ -514,16 +616,28 @@ void searchForKeyword(char voiceChoice){
 				whileLoopVariable = 0;
 				break;
 			case 1:
+				printf(" Do you want to save the output in a separate file(y/n): ");
+				scanf(" %c", &chr);
+
+				outToFile = (chr == 'y') ? 1 : 0;
 				printf("\n Enter the IP: ");
 				scanf("%s", word);
-				grepify(word, v);
+				grepify(word, v, outToFile);
 				break;
 			case 2:
+				printf(" Do you want to save the output in a separate file(y/n): ");
+				scanf(" %c", &chr);
+
+				outToFile = (chr == 'y') ? 1 : 0;
 				printf("\n Enter the Date [Ex. 04/Nov/2000]: ");
 				scanf("%s", word);
-				grepify(word, v);
+				grepify(word, v, outToFile);
 				break;
 			case 3:
+				printf(" Do you want to save the output in a separate file(y/n): ");
+				scanf(" %c", &chr);
+
+				outToFile = (chr == 'y') ? 1 : 0;
 				s = word;
 				printf("\n Enter the HTTP method: ");
 				scanf("%s", word);
@@ -531,17 +645,25 @@ void searchForKeyword(char voiceChoice){
 					*s = (*s > 'a' && *s <= 'z') ? *s-32 : *s;
 					s++;
 				}
-				grepify(word, v);
+				grepify(word, v, outToFile);
 				break;
 			case 4:
+				printf(" Do you want to save the output in a separate file(y/n): ");
+				scanf(" %c", &chr);
+
+				outToFile = (chr == 'y') ? 1 : 0;
 				printf("\n Enter the status code/ response code: ");
 				scanf("%s", word);
-				grepify(word, v);
+				grepify(word, v, outToFile);
 				break;
 			case 5:
+				printf(" Do you want to save the output in a separate file(y/n): ");
+				scanf(" %c", &chr);
+
+				outToFile = (chr == 'y') ? 1 : 0;
 				printf("\n Others(Case sensitive): ");
 				scanf("%s", word);
-				grepify(word, v);
+				grepify(word, v, outToFile);
 				break;
 			default:
 				printf("Invalid Option!!!");
