@@ -3,9 +3,9 @@
 // techniques used
 // time based --> smartly 
 
-#include<stdio.h>
-#include<string.h>
-#include<stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
 *	Structure to keep count of occurences of IP in the log file
@@ -75,6 +75,8 @@ void banner(){
 	printf("***************************************************************************************\n"); // yellow, orange
 	colorReset();
 
+	return;
+
 }
 
 /*
@@ -83,10 +85,13 @@ void banner(){
 */
 
 void subBanner(void){
+
 	colorCyan();
 	printf("          <<<<<    Log Analysis Tool Using Pattern Matching and Regex    >>>>>         \n"); // Pink, Light blue
 	printf("\n");
 	colorReset();
+
+	return;
 }
 
 void manualVisualize(char path[], int size, int v){
@@ -170,6 +175,7 @@ void manualVisualize(char path[], int size, int v){
 	printf("   Each '#' represents 10 occurences in the log file !!!\n\n");
 	colorReset();
 
+	return;
 
 }
 
@@ -256,6 +262,8 @@ void visualizeLog(char voiceChoice){
 
 	}
 
+	return;
+
 }
 
 int unblockAndDeleteFromFile(char IP[]){
@@ -264,6 +272,12 @@ int unblockAndDeleteFromFile(char IP[]){
     char line[25];
     int availaible = 0;
 
+	/*
+	* Here we are scannning the list of blocked IP(s) using linear search
+	* and if the IP is in the block list then, the variable availaible will be assigned
+	* a value 1(true).
+	*/
+
     fp = fopen("block.txt","r");
     while(EOF != fscanf(fp, "%25[^\n]\n", line)){
         if(strstr(line , IP) != NULL){
@@ -271,6 +285,11 @@ int unblockAndDeleteFromFile(char IP[]){
         }
     }
     fclose(fp);
+
+	/*
+	* In this step we create a script which will delete the unblocked IP from the block list.
+	* if the value of variable availaible is set to 0, then user will be prompted.
+	*/
 
     if(availaible == 1){
         fp = fopen("removeIp.sh", "w");
@@ -295,6 +314,12 @@ int blockedAndAddToFile(char IP[]){
     
     fptr = fopen("block.txt", "a");
     fclose(fptr);
+	
+	/*
+	* Here we are scannning the list of blocked IP(s) using linear search
+	* and if the IP is in the block list then, the variable availaible will be assigned
+	* a value 1(true).
+	*/
 
     fp = fopen("block.txt","r");
     while(EOF != fscanf(fp, "%25[^\n]\n", line)){
@@ -303,6 +328,11 @@ int blockedAndAddToFile(char IP[]){
         }
     }
     fclose(fp);
+
+	/*
+	* The Ip will only be blocked if it is not present in the block list
+	* otherwise the user will be prompted a message.
+	*/
 
     if(availaible == 0){
         fp = fopen("block.txt", "a");
@@ -332,13 +362,29 @@ void block(char voiceChoice){
 
     if(blockedAndAddToFile(IP) == 0){
         
+		/*
+		* The string will be concatenated here in order to form a right unix commnand,
+		* the function to concatenate strings is already define above.
+		*/
+
         char *s = concat(command, IP);
         char *t = concat(s, tail);
+
+		/*
+		* This step will run the command that was formed using concatenating the strings
+		* and the status code of the system command is stored in a variable for further
+		* use.
+		*/
 
         printf(" Blocking the IP\n");
         colorGreen();
         status = system(t);
         colorReset();
+
+		/*
+		* If the status value is not 0, that is if the command was not run successfully,
+		* then the user will be prompted the issue.
+		*/
 
         if(status != 0){
             if(voiceChoice == 'y') {
@@ -351,6 +397,7 @@ void block(char voiceChoice){
     }
 
     printf("\n");
+	return;
 }
 
 void unblock(char voiceChoice){
@@ -367,14 +414,32 @@ void unblock(char voiceChoice){
     scanf("%s", IP);
 
     if(unblockAndDeleteFromFile(IP) == 0){
+
+		/*
+		* The string will be concatenated here in order to form a right unix commnand,
+		* the function to concatenate strings is already define above.
+		*/
         
         char *s = concat(command, IP);
         char *t = concat(s, tail);
 
-        printf(" Unblocking the IP\n");
+		/*
+		* This step will run the command that was formed using concatenating the strings
+		* and the status code of the system command is stored in a variable for further
+		* use.
+		*/
+		if(voiceChoice == 'y'){
+        	system("espeak-ng -p 81 -a 55 -s 140 \"Unblocking the IP\"");
+    	}
+        printf(" Unblocking the IP...\n");
         colorGreen();
         status = system(t);
         colorReset(); 
+
+		/*
+		* If the status value is not 0, that is if the command was not run successfully,
+		* then the user will be prompted the issue.
+		*/
 
         if(status != 0){
             if(voiceChoice == 'y') {
@@ -387,6 +452,7 @@ void unblock(char voiceChoice){
         }
     }
     printf("\n");
+	return;
 }
 
 void displayBlockedIP(void){
@@ -396,6 +462,11 @@ void displayBlockedIP(void){
 	int numberofLines = 0;
 
 	fp = fopen("block.txt", "r");
+
+	/*
+	* Working of this function is pretty clear, it will display all the IP(s)
+	* present in the block list.
+	*/
 	
 	while(EOF != fscanf(fp, "%30[^\n]\n", line)){
 		colorRed();
@@ -405,7 +476,6 @@ void displayBlockedIP(void){
     }
 	
 	fclose(fp);
-
 	colorGreen();
 	printf("\t\t********* %d line(s) displayed *********\n", numberofLines);
 	colorReset();
@@ -421,6 +491,10 @@ void ipBlockUnblock(char voiceChoice){
     int ipChoice;
 	
 
+	/*
+	* This function will provide the options to the user,
+	* to block or unblock the IP(s), and the respective functions will be called.
+	*/
 
 	while(whileLoopVariable){
         if(voiceChoice == 'y') {
@@ -463,6 +537,8 @@ void ipBlockUnblock(char voiceChoice){
                 break;
 		}
 	}
+
+	return;
 
 }	
 
@@ -512,6 +588,8 @@ void convertToLog(char voiceChoice){
 	
 	// deleting of script, since it is meant to be abstract
 	system("rm script.sh -f");
+
+	return;
 }
 
 void grepify(char word[], int v, int outToFile){
@@ -520,13 +598,14 @@ void grepify(char word[], int v, int outToFile){
 	char path[128];
 	FILE *fp, *out;
 	int numberOfLines = 0;
-    char line[200];
+    char line[350];
     char fileName[50];
 
 
 	// ask for the path of file in which the word is to be searched
 
     if(outToFile){
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter file name\""); }
         printf(" Enter the name of file to be saved in (the file will be overwritten if it already exists): ");
         scanf("%s", fileName);
     }
@@ -542,7 +621,7 @@ void grepify(char word[], int v, int outToFile){
         out = fopen(fileName, "w");
     }
 	// O(n), to traverse each line
-	while(EOF != fscanf(fp, "%200[^\n]\n", line)){
+	while(EOF != fscanf(fp, "%350[^\n]\n", line)){
 		if(strstr(line , word) != NULL){
 			colorRed();
 			++numberOfLines;
@@ -565,7 +644,8 @@ void grepify(char word[], int v, int outToFile){
 	colorGreen();
 	printf("\t\t********* %d line(s) displayed *********\n", numberOfLines);
     if(outToFile){
-        printf("\t\t********* Output saved to file *********\n");
+        printf("\t\t********* Output saved to file %s *********\n", fileName);
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Output saved\""); }
     }
 	colorReset();
 
@@ -576,7 +656,7 @@ void grepify(char word[], int v, int outToFile){
 
 void searchForKeyword(char voiceChoice){   
 
-    // Variable declarationa
+    // Variable declaration
 	int v = 0;
 	char * s;
     char word[100];
@@ -603,11 +683,6 @@ void searchForKeyword(char voiceChoice){
 		printf("\n Enter you choice: ");
 		scanf("%d", &swChoice);
 
-		// printf("Do you want to save the output in a separate file(y/n): ");
-		// scanf(" %c", &chr);
-
-		// outToFile = (chr == 'y') ? 1 : 0;
-
 		// ask for the word to be searched in a file
 		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"enter the pattern to be searched\""); }
 
@@ -616,6 +691,7 @@ void searchForKeyword(char voiceChoice){
 				whileLoopVariable = 0;
 				break;
 			case 1:
+				if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
 				printf(" Do you want to save the output in a separate file(y/n): ");
 				scanf(" %c", &chr);
 
@@ -625,6 +701,7 @@ void searchForKeyword(char voiceChoice){
 				grepify(word, v, outToFile);
 				break;
 			case 2:
+				if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
 				printf(" Do you want to save the output in a separate file(y/n): ");
 				scanf(" %c", &chr);
 
@@ -634,6 +711,7 @@ void searchForKeyword(char voiceChoice){
 				grepify(word, v, outToFile);
 				break;
 			case 3:
+				if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
 				printf(" Do you want to save the output in a separate file(y/n): ");
 				scanf(" %c", &chr);
 
@@ -648,6 +726,7 @@ void searchForKeyword(char voiceChoice){
 				grepify(word, v, outToFile);
 				break;
 			case 4:
+				if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
 				printf(" Do you want to save the output in a separate file(y/n): ");
 				scanf(" %c", &chr);
 
@@ -657,6 +736,7 @@ void searchForKeyword(char voiceChoice){
 				grepify(word, v, outToFile);
 				break;
 			case 5:
+				if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
 				printf(" Do you want to save the output in a separate file(y/n): ");
 				scanf(" %c", &chr);
 
@@ -671,14 +751,103 @@ void searchForKeyword(char voiceChoice){
 		}
 	}
 	//while loop ends
+
+	return;
+}
+
+void grepInTime(char voiceChoice, int fileOut){
+    int v = 0, flag = 0;
+    int numberOfLines = 0;
+    FILE *fp, *fpp;
+    char start[50], end[50], line[350], path[150], outName[150];
+
+	if(voiceChoice == 'y'){ v = 1;}
+
+	// Asking for the path of log file
+	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter path of the log file\""); }
+    printf("Enter the path to the log file: ");
+    scanf("%s", path);
+
+	// Asking for the start time
+	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter the start time\""); }
+    printf("Enter the start time: ");
+    scanf("%s", start);
+
+	// Asking for the end time
+	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter the end time\""); }
+    printf("Enter the end time: ");
+    scanf("%s", end);
+
+	if(fileOut==1){
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter the name of the output file\""); }
+		printf("Enter the name of the file to save output (the file will be overwritten if it already exists): ");
+		scanf("%s", outName);
+	}
+    
+	/*
+	* The algo of the this function is easy but implemented in a very smart manner.
+	* The first loop first searched for the first apperance of start date and sets the flag to true
+	* and if the flag is true at a particular time then that line will be printed
+	* as soon as the first end date appears, the flag is set to false and then the loop breaks to save
+	* time and resources.
+	* The next loop simply prints each line in which the end date is found.
+	*/
+    fp = fopen(path, "r");
+	if(fileOut==1){
+		fpp = fopen(outName, "w");
+	}
+    while(EOF != fscanf(fp, "%350[^\n]\n", line)){
+        if(strstr(line, start) != NULL){
+            flag = 1;
+        }
+        if(strstr(line, end) != NULL){
+            flag = 0;
+            break;
+        }
+        if(flag){
+            ++numberOfLines;
+            printf("%s\n", line);
+			if(fileOut==1){
+				fprintf(fpp, "%s\n", line);
+			}
+        }
+    }
+    fclose(fp);
+
+    fp = fopen(path, "r");
+    while(EOF != fscanf(fp, "%350[^\n]\n", line)){
+        if(strstr(line, end) != NULL){
+            ++numberOfLines;
+            printf("%s\n", line);
+			if(fileOut==1){
+				fprintf(fpp, "%s\n", line);
+			}
+        }
+    }
+    fclose(fp);
+	if(fileOut==1){
+		fclose(fpp);
+	}
+    
+	printf("\n\n");
+	colorGreen();
+    printf("\t\t*********** Displayed %d Lines ****************\n", numberOfLines);
+	if(fileOut==1){
+		printf("\t\t*********** Output Saved to File %s ****************\n", outName);
+		if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Output save to the file\""); }
+	}
+	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Output displayed\""); }
+	colorReset();
+
+    return;
 }
 
 int main(void){
 	
 	// Variable Declaration
 	int whileLoopVariable = 1;
-	char voiceChoice;
-	int choice;
+	char voiceChoice, chr;
+	int choice, fileOut;
 
 	// clear the terminal before executing the code
 	system("clear");
@@ -703,6 +872,7 @@ int main(void){
 		printf("2. To search for a occurence of a word in log file.\n");
 		printf("3. Block / Unblock a particular IP using firewall.\n");
 		printf("4. Visualize Log Files\n");
+		printf("5. View Logs within a particular time frame.\n");
 		printf("0. Exit program\n");	
 
 		printf("\nSelect an option: ");
@@ -738,6 +908,16 @@ int main(void){
 		  system("clear");
 		  subBanner();
 		  visualizeLog(voiceChoice);
+		  break;
+
+		case 5:
+		  system("clear");
+		  subBanner();
+		  if(voiceChoice == 'y') { system("espeak-ng -p 81 -a 55 -s 140 \"Do you want to store the output\""); }
+		  printf("Do you want to save the output to a file(y/n): ");
+		  scanf(" %c", &chr);
+		  fileOut = (chr=='y')?1:0;
+		  grepInTime(voiceChoice, fileOut);
 		  break;
 
         default:
