@@ -103,6 +103,19 @@ void manualVisualize(char path[], int size, int v){
 	int originalCount;
 
 	/*
+	* Check if file exists or not
+	*/
+	fp = fopen(path, "r");
+	if(fp == NULL){
+		printf("\n");
+		colorRed();
+		printf("No Such File Exists, please check the file name again.\n");
+		colorReset();
+		return;
+	}
+	fclose(fp);
+
+	/*
 	*	This is the option to enable voice assistance.
 	*/
 
@@ -558,6 +571,19 @@ void convertToLog(char voiceChoice){
 	if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the location of the log file\""); // only run if v is set to true
     scanf("%s", path);
 
+	/*
+	* Check if file exists or not
+	*/
+	fp = fopen(path, "r");
+	if(fp == NULL){
+		printf("\n");
+		colorRed();
+		printf("No Such File Exists, please check the file name again.\n");
+		colorReset();
+		return;
+	}
+	fclose(fp);
+
 	// CSV file path where it is to be saved
     printf("\nCSV file path: ");
     if(v) system("espeak-ng -p 81 -a 55 -s 140 \"Enter the path of  CSV file\"");    
@@ -615,6 +641,19 @@ void grepify(char word[], int v, int outToFile){
 	scanf("%s", path);
 
 	// file opened
+
+	/*
+	* Check if file exists or not
+	*/
+	fp = fopen(path, "r");
+	if(fp == NULL){
+		printf("\n");
+		colorRed();
+		printf("No Such File Exists, please check the file name again.\n");
+		colorReset();
+		return;
+	}
+	fclose(fp);
 
 	fp = fopen(path,"r");
     if(outToFile){
@@ -768,6 +807,19 @@ void grepInTime(char voiceChoice, int fileOut){
     printf("Enter the path to the log file: ");
     scanf("%s", path);
 
+	/*
+	* Check if file exists or not
+	*/
+	fp = fopen(path, "r");
+	if(fp == NULL){
+		printf("\n");
+		colorRed();
+		printf("No Such File Exists, please check the file name again.\n");
+		colorReset();
+		return;
+	}
+	fclose(fp);
+
 	// Asking for the start time
 	if(v) { system("espeak-ng -p 81 -a 55 -s 140 \"Enter the start time\""); }
     printf("Enter the start time: ");
@@ -796,6 +848,7 @@ void grepInTime(char voiceChoice, int fileOut){
 	if(fileOut==1){
 		fpp = fopen(outName, "w");
 	}
+	printf("\n");
     while(EOF != fscanf(fp, "%350[^\n]\n", line)){
         if(strstr(line, start) != NULL){
             flag = 1;
@@ -806,7 +859,9 @@ void grepInTime(char voiceChoice, int fileOut){
         }
         if(flag){
             ++numberOfLines;
+			colorRed();
             printf("%s\n", line);
+			colorReset();
 			if(fileOut==1){
 				fprintf(fpp, "%s\n", line);
 			}
@@ -818,7 +873,9 @@ void grepInTime(char voiceChoice, int fileOut){
     while(EOF != fscanf(fp, "%350[^\n]\n", line)){
         if(strstr(line, end) != NULL){
             ++numberOfLines;
+			colorRed();
             printf("%s\n", line);
+			colorReset();
 			if(fileOut==1){
 				fprintf(fpp, "%s\n", line);
 			}
