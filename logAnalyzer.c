@@ -1,7 +1,3 @@
-// dynamic mem allocation, pointers, structures, searching, pattern matching, regular expression, file handling
-// name of algo --> linear search
-// techniques used
-// time based --> smartly 
 
 #include <stdio.h>
 #include <string.h>
