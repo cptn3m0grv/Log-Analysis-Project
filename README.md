@@ -1,4 +1,1 @@
-## MINOR 1 code, related to log analysis
-
-### added convertToLog and wordSearching functionality
-
+## MINOR 1 code, related to log analysis using regex and pattern matching
